@@ -28,6 +28,10 @@ import org.datasyslab.geospark.geometryObjects.GeometrySerde
 object GeometrySerializer {
 
   def serialize(geometry: Geometry): Array[Byte] = {
+
+    println("########## org.datasyslab.geosparksql.utils.GeometrySerializer$.serialize: " +
+      geometry.toString)
+
     val out = new ByteArrayOutputStream()
     val kryo = new Kryo()
     val geometrySerde = new GeometrySerde()

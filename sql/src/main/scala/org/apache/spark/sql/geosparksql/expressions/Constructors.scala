@@ -120,11 +120,18 @@ case class ST_GeomFromWKT(inputExpressions: Seq[Expression])
 
   override def eval(inputRow: InternalRow): Any = {
     // This is an expression which takes one input expressions
+
+    println("############# org.apache.spark.sql.geosparksql.expressions.ST_GeomFromWKT: InternalRow " +
+      String.valueOf(inputRow))
+
     assert(inputExpressions.length == 1)
     val geomString = inputExpressions(0).eval(inputRow).asInstanceOf[UTF8String].toString
     var fileDataSplitter = FileDataSplitter.WKT
     var formatMapper = new FormatMapper(fileDataSplitter, false)
     var geometry = formatMapper.readGeometry(geomString)
+    println("############# org.apache.spark.sql.geosparksql.expressions.ST_GeomFromWKT: Geometry: " +
+      String.valueOf(geometry))
+    
     return new GenericArrayData(GeometrySerializer.serialize(geometry))
   }
 
