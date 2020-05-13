@@ -113,9 +113,9 @@ public class GeometrySerde
         else {
             throw new UnsupportedOperationException("Cannot serialize object of type " +
                     "######################" +
-                    object + 
-                    String.valueOf(object) +
-                    object.getClass().getName());
+                    object +
+                    String.valueOf(object));
+//                    object.getClass().getName());
         }
     }
 
