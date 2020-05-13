@@ -23,6 +23,7 @@ import com.vividsolutions.jts.operation.IsSimpleOp
 import com.vividsolutions.jts.operation.valid.IsValidOp
 import com.vividsolutions.jts.precision.GeometryPrecisionReducer
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier
+import gov.nasa.worldwind.geom.Angle
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator}
@@ -34,6 +35,7 @@ import org.datasyslab.geosparksql.utils.GeometrySerializer
 import org.geotools.geometry.jts.JTS
 import org.geotools.referencing.CRS
 import org.opengis.referencing.operation.MathTransform
+
 
 /**
   * Return the distance between two geometries.
@@ -66,6 +68,55 @@ case class ST_Distance(inputExpressions: Seq[Expression])
   }
 
   override def dataType = DoubleType
+}
+
+/**
+ * Return the Haversine distance between two geometries.
+ *
+ * @param inputExpressions This function takes two geometries and calculates the Haversine distance between two objects
+ * in meters.
+ */
+case class ST_Great_Circle_Distance(inputExpressions: Seq[Expression])
+  extends Expression with CodegenFallback {
+
+  // This is a binary expression
+  assert(inputExpressions.length == 2)
+
+  override def nullable: Boolean = false
+
+  override def toString: String = s" **${ST_Great_Circle_Distance.getClass.getName}**  "
+
+  override def children: Seq[Expression] = inputExpressions
+
+  override def eval(inputRow: InternalRow): Any = {
+    assert(inputExpressions.length == 2)
+
+    val leftArray = inputExpressions(0).eval(inputRow).asInstanceOf[ArrayData]
+    val rightArray = inputExpressions(1).eval(inputRow).asInstanceOf[ArrayData]
+
+    val leftGeometry = GeometrySerializer.deserialize(leftArray)
+
+    val rightGeometry = GeometrySerializer.deserialize(rightArray)
+
+    val lat1 = leftGeometry.getCoordinate.y.toRadians
+    val lon1 = leftGeometry.getCoordinate.x.toRadians
+
+    val lat2 = rightGeometry.getCoordinate.y.toRadians
+    val lon2 = rightGeometry.getCoordinate.x.toRadians
+
+    val a: Double = Math.sin((lat2 - lat1) / 2.0)
+    val b: Double = Math.sin((lon2 - lon1) / 2.0)
+    val c: Double = a * a + +Math.cos(lat1) * Math.cos(lat2) * b * b
+    val distanceRadians: Double = 2.0 * Math.asin(Math.sqrt(c))
+
+    if (distanceRadians.isNaN) {
+      Angle.ZERO
+    } else {
+      distanceRadians * 6371000
+    }
+  }
+
+  override def dataType: DataType = DoubleType
 }
 
 /**

@@ -35,6 +35,7 @@ object Catalog {
     ST_Intersects,
     ST_Within,
     ST_Distance,
+    ST_Great_Circle_Distance,
     ST_ConvexHull,
     ST_NPoints,
     ST_Buffer,
