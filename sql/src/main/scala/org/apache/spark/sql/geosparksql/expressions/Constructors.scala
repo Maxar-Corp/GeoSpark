@@ -131,7 +131,7 @@ case class ST_GeomFromWKT(inputExpressions: Seq[Expression])
     var geometry = formatMapper.readGeometry(geomString)
     println("############# org.apache.spark.sql.geosparksql.expressions.ST_GeomFromWKT: Geometry: " +
       String.valueOf(geometry))
-    
+
     return new GenericArrayData(GeometrySerializer.serialize(geometry))
   }
 
