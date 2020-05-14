@@ -129,6 +129,11 @@ case class ST_GeomFromWKT(inputExpressions: Seq[Expression])
     var fileDataSplitter = FileDataSplitter.WKT
     var formatMapper = new FormatMapper(fileDataSplitter, false)
     var geometry = formatMapper.readGeometry(geomString)
+
+    if(geometry.equals(null)){
+      throw new UnsupportedOperationException("cannot convert geomstring to geometry: geomstring = " + geomString)
+    }
+
     println("############# org.apache.spark.sql.geosparksql.expressions.ST_GeomFromWKT: Geometry: " +
       String.valueOf(geometry))
 
