@@ -32,22 +32,8 @@ object GeometrySerializer {
     * @return Array of bites represents this geometry
     */
   def serialize(geometry: Geometry): Array[Byte] = {
-<<<<<<< HEAD
-
-    println("########## org.datasyslab.geosparksql.utils.GeometrySerializer$.serialize: " +
-      geometry.toString)
-
-    val out = new ByteArrayOutputStream()
-    val kryo = new Kryo()
-    val geometrySerde = new GeometrySerde()
-    val output = new Output(out)
-    geometrySerde.write(kryo, output, geometry)
-    output.close()
-    return out.toByteArray
-=======
     val writer = new WKBWriter(2, 2)
     writer.write(geometry)
->>>>>>> 856577e1518d34175c755c327e481a996b0a7cb0
   }
 
   /**
