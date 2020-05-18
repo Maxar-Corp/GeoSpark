@@ -17,6 +17,7 @@
 package org.apache.spark.sql.geosparksql.expressions
 
 import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
+import jdk.nashorn.internal.runtime.linker.JavaAdapterBytecodeGenerator
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -120,23 +121,19 @@ case class ST_GeomFromWKT(inputExpressions: Seq[Expression])
 
   override def eval(inputRow: InternalRow): Any = {
     // This is an expression which takes one input expressions
-
-    println("############# org.apache.spark.sql.geosparksql.expressions.ST_GeomFromWKT: InternalRow " +
-      String.valueOf(inputRow))
-
     assert(inputExpressions.length == 1)
     val geomString = inputExpressions(0).eval(inputRow).asInstanceOf[UTF8String].toString
     var fileDataSplitter = FileDataSplitter.WKT
     var formatMapper = new FormatMapper(fileDataSplitter, false)
     var geometry = formatMapper.readGeometry(geomString)
 
-    if(geometry.equals(null)){
-      throw new UnsupportedOperationException("cannot convert geomstring to geometry: geomstring = " + geomString)
+    try{
+      if(geometry.equals(null)){
+        throw new UnsupportedOperationException("cannot convert geomstring to geometry: geomstring = " + geomString)
+      }
+    } catch {
+      case e: NullPointerException => throw new NullPointerException("cannot convert geomstring to geometry: geomstring = " + geomString)
     }
-
-    println("############# org.apache.spark.sql.geosparksql.expressions.ST_GeomFromWKT: Geometry: " +
-      String.valueOf(geometry))
-
     return new GenericArrayData(GeometrySerializer.serialize(geometry))
   }
 

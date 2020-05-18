@@ -33,11 +33,6 @@ object GeometrySerializer {
     */
   def serialize(geometry: Geometry): Array[Byte] = {
     val writer = new WKBWriter(2, 2)
-    try {
-      println(geometry.toString)
-    } catch {
-      case _: Throwable  => println("####### Geometry: " + geometry.toString())
-    }
     writer.write(geometry)
   }
 
